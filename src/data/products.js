@@ -9,7 +9,7 @@ import whiteToteImage from '../assets/products/white-tote.jpeg'
 export const products = [
   {
     id: 1,
-    name: 'Black Praisafest Tote',
+    name: 'Black Praisafest Tote Bag',
     category: 'Tote Bag',
     color: 'Black',
     amount: 100,
@@ -19,7 +19,7 @@ export const products = [
   },
   {
     id: 2,
-    name: 'White Praisafest Tote',
+    name: 'White Praisafest Tote Bag',
     category: 'Tote Bag',
     color: 'White',
     amount: 100,
