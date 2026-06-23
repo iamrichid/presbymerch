@@ -401,15 +401,17 @@ body {
   display: grid;
   place-items: center;
   padding: 1rem;
+  overflow-y: auto;
   background: rgba(15, 23, 42, 0.54);
 }
 
 .product-modal {
   width: min(980px, 100%);
+  max-height: calc(100vh - 2rem);
   border-radius: 2rem;
   background: #ffffff;
   box-shadow: 0 28px 80px rgba(15, 23, 42, 0.24);
-  overflow: hidden;
+  overflow: auto;
 }
 
 .product-modal__close {
@@ -760,6 +762,11 @@ body {
   .product-modal__layout {
     grid-template-columns: 1fr;
   }
+
+  .product-modal__image {
+    min-height: 18rem;
+    max-height: 40vh;
+  }
 }
 
 @media (max-width: 900px) {
@@ -801,6 +808,16 @@ body {
 
   .collection-products {
     grid-template-columns: 1fr;
+  }
+
+  .product-modal-overlay {
+    padding: 0.5rem;
+    align-items: start;
+  }
+
+  .product-modal {
+    max-height: calc(100vh - 1rem);
+    border-radius: 1.4rem;
   }
 
   .product-modal__content {
