@@ -110,10 +110,13 @@ const sendWhatsAppOrder = () => {
             <p class="collection-category">{{ selectedProduct.category }}</p>
             <h2 class="product-modal__title">{{ selectedProduct.name }}</h2>
             <p class="product-modal__description">{{ selectedProduct.description }}</p>
+            <p class="product-modal__description">
+              Pay more to support Praisafest by purchasing a product and May God bless you.
+            </p>
 
             <div class="product-modal__meta">
               <span class="collection-meta">{{ selectedProduct.badge }}</span>
-              <p class="product-modal__rule">Minimum is GHS {{ MIN_AMOUNT }}. Customers can increase it.</p>
+              <p class="product-modal__rule">Price is 100 cedis.</p>
             </div>
 
             <div class="product-modal__controls">
