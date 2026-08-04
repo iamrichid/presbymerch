@@ -16,20 +16,60 @@ const selectedProduct = ref(null)
 const quantity = ref(1)
 const amount = ref(MIN_AMOUNT)
 const selectedSize = ref('')
+const selectedColor = ref('')
+const mediaMode = ref('image')
+const galleryIndex = ref(0)
 
 const totalAmount = computed(() => quantity.value * amount.value)
 const hasSizes = computed(() => Boolean(selectedProduct.value?.sizes?.length))
+const hasColors = computed(() => Boolean(selectedProduct.value?.colors?.length))
+const hasVideo = computed(() => Boolean(selectedProduct.value?.video))
+const hasGallery = computed(() => Boolean(selectedProduct.value?.gallery?.length))
+const showGallery = computed(() => hasVideo.value || hasGallery.value)
+
+const activeImage = computed(() => {
+  if (!selectedProduct.value) return ''
+  if (hasGallery.value) {
+    return selectedProduct.value.gallery[galleryIndex.value] ?? selectedProduct.value.image
+  }
+  return selectedProduct.value.image
+})
+
+const mediaFitClass = computed(() => {
+  const fit = selectedProduct.value?.mediaFit ?? 'cover'
+  return fit === 'contain' ? 'product-modal__media-fit--contain' : 'product-modal__media-fit--cover'
+})
+
+const mediaStyle = computed(() => {
+  const position = selectedProduct.value?.mediaPosition
+  return position ? { objectPosition: position } : undefined
+})
 
 const openProductModal = (product) => {
   selectedProduct.value = product
   quantity.value = 1
   amount.value = product.amount ?? MIN_AMOUNT
   selectedSize.value = product.sizes?.[0] ?? ''
+  selectedColor.value = product.colors?.[0] ?? ''
+  mediaMode.value = product.video ? 'video' : 'image'
+  galleryIndex.value = 0
 }
 
 const closeProductModal = () => {
   selectedProduct.value = null
   selectedSize.value = ''
+  selectedColor.value = ''
+  mediaMode.value = 'image'
+  galleryIndex.value = 0
+}
+
+const selectVideo = () => {
+  mediaMode.value = 'video'
+}
+
+const selectGalleryImage = (index) => {
+  mediaMode.value = 'image'
+  galleryIndex.value = index
 }
 
 const changeQuantity = (delta) => {
@@ -43,12 +83,14 @@ const changeAmount = (delta) => {
 const sendWhatsAppOrder = () => {
   if (!selectedProduct.value) return
 
+  const colour = selectedColor.value || selectedProduct.value.color
+
   const message = [
     'Hello Praisafest Team,',
     '',
     'I would like to order:',
     `Item: ${selectedProduct.value.name}`,
-    `Colour: ${selectedProduct.value.color}`,
+    ...(colour ? [`Colour: ${colour}`] : []),
     ...(selectedSize.value ? [`Size: ${selectedSize.value}`] : []),
     `Quantity: ${quantity.value}`,
     `Amount per item: GHS ${amount.value}`,
@@ -70,8 +112,16 @@ const sendWhatsAppOrder = () => {
           class="collection-card"
           @click="openProductModal(product)"
         >
-          <div class="collection-visual">
-            <img :src="product.image" :alt="product.name" class="collection-image" />
+          <div
+            class="collection-visual"
+            :class="{ 'collection-visual--has-video': product.video }"
+          >
+            <img
+              :src="product.image"
+              :alt="product.name"
+              class="collection-image"
+              :style="product.mediaPosition ? { objectPosition: product.mediaPosition } : undefined"
+            />
           </div>
 
           <div class="collection-copy">
@@ -103,7 +153,51 @@ const sendWhatsAppOrder = () => {
 
         <div class="product-modal__layout">
           <div class="product-modal__media">
-            <img :src="selectedProduct.image" :alt="selectedProduct.name" class="product-modal__image" />
+            <div class="product-modal__stage" :class="mediaFitClass">
+              <video
+                v-if="hasVideo && mediaMode === 'video'"
+                :key="selectedProduct.video"
+                class="product-modal__video"
+                :poster="selectedProduct.image"
+                autoplay
+                muted
+                loop
+                playsinline
+              >
+                <source :src="selectedProduct.video" type="video/mp4" />
+              </video>
+              <img
+                v-else
+                :key="activeImage"
+                :src="activeImage"
+                :alt="selectedProduct.name"
+                class="product-modal__image"
+                :style="mediaStyle"
+              />
+            </div>
+
+            <div v-if="showGallery" class="product-modal__gallery">
+              <button
+                v-if="hasVideo"
+                type="button"
+                class="product-modal__thumb"
+                :class="{ 'product-modal__thumb--active': mediaMode === 'video' }"
+                @click="selectVideo"
+              >
+                <img :src="selectedProduct.image" alt="Product video" class="product-modal__thumb-image" />
+                <span class="product-modal__thumb-play" aria-hidden="true">▶</span>
+              </button>
+              <button
+                v-for="(image, index) in selectedProduct.gallery"
+                :key="`${selectedProduct.id}-gallery-${index}`"
+                type="button"
+                class="product-modal__thumb"
+                :class="{ 'product-modal__thumb--active': mediaMode === 'image' && galleryIndex === index }"
+                @click="selectGalleryImage(index)"
+              >
+                <img :src="image" :alt="`${selectedProduct.name} view ${index + 1}`" class="product-modal__thumb-image" />
+              </button>
+            </div>
           </div>
 
           <div class="product-modal__content">
@@ -120,6 +214,22 @@ const sendWhatsAppOrder = () => {
             </div>
 
             <div class="product-modal__controls">
+              <div v-if="hasColors" class="product-stepper">
+                <p class="product-stepper__label">Colour</p>
+                <div class="size-options">
+                  <button
+                    v-for="color in selectedProduct.colors"
+                    :key="color"
+                    type="button"
+                    class="size-option"
+                    :class="{ 'size-option--active': selectedColor === color }"
+                    @click="selectedColor = color"
+                  >
+                    {{ color }}
+                  </button>
+                </div>
+              </div>
+
               <div v-if="hasSizes" class="product-stepper">
                 <p class="product-stepper__label">Size</p>
                 <div class="size-options">
@@ -156,6 +266,10 @@ const sendWhatsAppOrder = () => {
             </div>
 
             <div class="product-modal__summary">
+              <div v-if="selectedColor" class="summary-line">
+                <span>Colour</span>
+                <strong>{{ selectedColor }}</strong>
+              </div>
               <div v-if="selectedSize" class="summary-line">
                 <span>Size</span>
                 <strong>{{ selectedSize }}</strong>
