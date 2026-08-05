@@ -1,4 +1,3 @@
-import blackShirtImage from '../assets/products/black-shirt.png'
 import bottleLifestyle1 from '../assets/products/bottles/bottles-lifestyle-1.png'
 import bottleLifestyle2 from '../assets/products/bottles/bottles-lifestyle-2.png'
 import bottleVideo from '../assets/products/bottles/bottle-video.mp4'
@@ -59,7 +58,6 @@ export const products = [
     badge: 'New Colours',
     description: 'Praisafest splash logo tee with Adinkra side detail. Available in black, navy blue, pink, and grey.',
     image: shirtBluePurple,
-    gallery: [shirtBluePurple, blackShirtImage],
     colors: ['Black', 'Navy Blue', 'Pink', 'Grey'],
     sizes: ['M', 'XL', 'XXL', 'XXXL'],
     mediaFit: 'contain',
